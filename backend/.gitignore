@@ -1,0 +1,21 @@
+# .gitignore
+
+# Ignore node_modules
+/node_modules
+
+# Ignore .env file
+/.env
+
+# Ignore package-lock.json
+/package-lock.json
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
