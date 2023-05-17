@@ -30,7 +30,7 @@ app.use(
 );
 
 const corsOptions = {
-  origin: 'http://172.20.10.5:3000',
+  origin: 'http://192.168.1.212:3000',
   optionsSuccessStatus: 200,
 };
 

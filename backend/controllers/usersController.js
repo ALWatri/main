@@ -5,9 +5,10 @@ const Item = require('../models/Item'); // Add this line to require the Item mod
 
 // Create and Save a new user
 exports.create = async (req, res) => {
-  if (!req.body.username) {
+  console.log('Received request body:', req.body);  // log the received request body
+  if (!req.body.username || !req.body.email) { // check for email too
     return res.status(400).send({
-      message: 'User name cannot be empty',
+      message: 'User name or email cannot be empty',
     });
   }
 
@@ -18,6 +19,7 @@ exports.create = async (req, res) => {
   const user = new User({
     username: req.body.username,
     password: hashedPassword,
+    email: req.body.email, // save email too
   });
 
   user

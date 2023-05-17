@@ -11,6 +11,11 @@ const UserSchema = new mongoose.Schema({
       type: String,
       required: true,
     },
+    email: { // add this line
+      type: String,
+      required: true, // or false, depending on your needs
+      unique: true, // or false, depending on your needs
+    },
       wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Item' }], // New wishlist field
     }, {
       timestamps: true,

@@ -3,7 +3,7 @@ const router = express.Router();
 const usersController = require('../controllers/usersController');
 const authController = require('../controllers/authController');
 
-router.post('/', authController.verifyToken, usersController.create);
+router.post('/', /*authController.verifyToken,*/ usersController.create);
 router.get('/', authController.verifyToken, usersController.findAll);
 router.put('/:id', authController.verifyToken, usersController.update);
 router.delete('/:id', authController.verifyToken, usersController.delete);
