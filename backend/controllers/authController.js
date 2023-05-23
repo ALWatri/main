@@ -177,7 +177,18 @@ const sendResetPasswordEmail = async (req, res, jwtSecret) => {
       res.status(500).json({ message: 'Server error' });
     }
   };
-
+  exports.verifyToken = (req, res, next) => {
+    const token = req.header('Authorization').replace('Bearer ', '');
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      if (err) {
+        res.status(401).send({ error: 'Please authenticate.' });
+      } else {
+        req.user = decoded;
+        next();
+      }
+    });
+  };
+  
   module.exports = {
     signup,
     login,

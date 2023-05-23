@@ -1,6 +1,11 @@
 const mongoose = require('mongoose');
 
 const ItemSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   category: {
     type: String,
     required: true,
@@ -26,7 +31,7 @@ const ItemSchema = new mongoose.Schema({
     required: true,
   },
 }, {
-  timestamps: true, // Add this line
+  timestamps: true, 
 });
 
 const Item = mongoose.model('Item', ItemSchema);

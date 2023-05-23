@@ -5,6 +5,7 @@ exports.addItem = (req, res) => {
   console.log('req.body:', req.body); // Add this line to log the request body
 
   const item = new Item({
+    user: req.user._id, // Add this line
     category: req.body.category,
     subCategory: req.body.subCategory,
     season: req.body.season,
@@ -46,17 +47,22 @@ exports.findOne = (req, res) => {
 
 // Find items by subcategory
 exports.findBySubCategory = (req, res) => {
+  console.log('req.user._id:', req.user._id); // For debugging
+  console.log('req.query.subCategory:', req.query.subCategory); // For debugging
+
   const limit = parseInt(req.query.limit) || 6;
   const page = parseInt(req.query.page) || 1;
 
-  Item.find({ subCategory: req.query.subCategory })
+  Item.find({ user: req.user._id, subCategory: req.query.subCategory }) // Add user filter here
     .sort({ createdAt: -1 }) // Add this line to sort by createdAt in descending order
     .skip((page - 1) * limit)
     .limit(limit)
     .then((items) => {
+      console.log('Retrieved items:', items); // For debugging
       res.send(items);
     })
     .catch((err) => {
+      console.log('Error:', err); // For debugging
       res.status(500).send({
         message: err.message || 'An error occurred while retrieving items.',
       });
@@ -66,7 +72,7 @@ exports.findBySubCategory = (req, res) => {
 
 // Retrieve and return all items from the database.
 exports.findAll = (req, res) => {
-  Item.find()
+  Item.find({ user: req.user._id }) // Add user filter here
     .then((items) => {
       res.send(items);
     })
