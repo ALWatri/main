@@ -10,17 +10,14 @@ const authRoutes = require('./routes/auth');
 dotenv.config();
 console.log('JWT_SECRET in server.js:', process.env.JWT_SECRET);
 
-
-
 const app = express();
 const PORT = process.env.PORT || 5000;
 const bodyParser = require('body-parser');
 
-
 const expressJwt = require('express-jwt');
 app.use(bodyParser.json());
 app.use('/api/auth', authRoutes);
-// In your server.js file or another appropriate file, add the following middleware for protected routes
+
 app.use(
   expressJwt({
     secret: process.env.JWT_SECRET,
@@ -29,15 +26,18 @@ app.use(
   }).unless({ path: ['/api/auth/login', '/api/auth/signup', '/api/users', '/api/categories'] })
 );
 
+// CORS whitelist
+const whitelist = ['http://192.168.1.212:3000', 'https://kabat.app/api'];
 const corsOptions = {
-  origin: 'http://192.168.1.212:3000',
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1 || !origin) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
   optionsSuccessStatus: 200,
 };
-
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} - ${res.statusCode}`);
-  next();
-});
 
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -57,4 +57,3 @@ mongoose.connection.once('open', () => {
 app.listen(PORT, () => {
   console.log(`Server is running on port: ${PORT}`);
 });
-

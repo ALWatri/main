@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const categoriesController = require('../controllers/categoriesController');
-const authController = require('../controllers/authController'); // Import the auth controller
+const authController = require('../controllers/authController');
 
 router.post('/', authController.verifyToken, categoriesController.create);
 router.get('/', authController.verifyToken, categoriesController.findAll);
