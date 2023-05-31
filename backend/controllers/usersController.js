@@ -30,6 +30,24 @@ exports.create = async (req, res) => {
     });
 };
 
+// Find a single user with a id
+exports.findOne = (req, res) => {
+  User.findById(req.params.id)
+    .then(user => {
+      if (!user) {
+        return res.status(404).send({
+          message: `User not found with id ${req.params.id}`
+        });
+      }
+      res.send(user);
+    })
+    .catch(err => {
+      res.status(500).send({
+        message: err.message || 'An error occurred while finding the user.'
+      });
+    });
+};
+
 // Find all users
 exports.findAll = (req, res) => {
   User.find()
@@ -95,68 +113,88 @@ exports.update = (req, res) => {
     });
 };
 
-// Add an item to the wishlist
+// Add an item to a user's wishlist
 exports.addItemToWishlist = async (req, res) => {
   try {
-    const user = await User.findById(req.params.userId);
-    const item = await Item.findById(req.params.itemId);
+    if(!req.user.id || !req.body.itemId) {
+      return res.status(400).send({
+        message: 'Both user and item IDs must be provided'
+      });
+    }
+
+    const user = await User.findById(req.user.id);
+    const item = await Item.findById(req.body.itemId);
 
     if (!user || !item) {
-      return res.status(404).json({ message: 'User or item not found' });
+      return res.status(404).send({
+        message: `User or Item not found with provided id`
+      });
     }
 
-    if (user.wishlist.indexOf(item._id) !== -1) {
-      return res.status(400).json({ message: 'Item already in wishlist' });
+    if (!user.wishlist.includes(item._id)) {
+      user.wishlist.push(item._id);
+      await user.save();
     }
 
-    user.wishlist.push(item._id);
-    await user.save();
-    res.status(200).json({ message: 'Item added to wishlist', user });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    res.send(user.wishlist);
+  } catch (err) {
+    res.status(500).send({
+      message: err.message || 'An error occurred while adding the item to the wishlist.'
+    });
   }
 };
 
-// Remove an item from the wishlist
+// Remove an item from a user's wishlist
 exports.removeItemFromWishlist = async (req, res) => {
   try {
-    const user = await User.findById(req.params.userId);
+    if(!req.user.id || !req.body.itemId) {
+      return res.status(400).send({
+        message: 'Both user and item IDs must be provided'
+      });
+    }
+
+    const user = await User.findById(req.user.id);
 
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).send({
+        message: `User not found with provided id`
+      });
     }
 
-    const itemIndex = user.wishlist.indexOf(req.params.itemId);
-
-    if (itemIndex === -1) {
-      return res.status(400).json({ message: 'Item not in wishlist' });
-    }
-
-    user.wishlist.splice(itemIndex, 1);
+    user.wishlist = user.wishlist.filter((itemId) => itemId.toString() !== req.body.itemId);
     await user.save();
-    res.status(200).json({ message: 'Item removed from wishlist', user });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+
+    res.send(user.wishlist);
+  } catch (err) {
+    res.status(500).send({
+      message: err.message || 'An error occurred while removing the item from the wishlist.'
+    });
   }
 };
 
-// Get the user's wishlist
+// Get a user's wishlist
 exports.getWishlist = async (req, res) => {
   try {
-    const user = await User.findById(req.params.userId).populate('wishlist');
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+    if(!req.userId) {
+      return res.status(400).send({
+        message: 'No user is logged in'
+      });
     }
-
-    res.status(200).json({ wishlist: user.wishlist });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    
+    const user = await User.findById(req.userId).populate('wishlist');
+    if (!user) {
+      return res.status(404).send({
+        message: `User not found with id ${req.userId}`
+      });
+    }
+    res.send(user.wishlist);
+  } catch (err) {
+    res.status(500).send({
+      message: err.message || 'An error occurred while getting the wishlist.'
+    });
   }
 };
+
 
 module.exports = {
   create: exports.create,

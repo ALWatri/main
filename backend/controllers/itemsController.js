@@ -1,17 +1,30 @@
 const Item = require('../models/Item');
 
+// Get all items for a specific user
+exports.getUserItems = (req, res) => {
+  Item.find({ userId: req.query.userId }) 
+    .then((items) => {
+      res.send(items);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || 'An error occurred while retrieving user items.',
+      });
+    });
+};
+
 // Create and Save a new item
 exports.addItem = (req, res) => {
-  console.log('req.body:', req.body); // Add this line to log the request body
+  console.log('req.body:', req.body); 
 
   const item = new Item({
-    user: req.user._id, // Add this line
+    userId: req.body.userId,
     category: req.body.category,
     subCategory: req.body.subCategory,
     season: req.body.season,
     images: req.body.images,
-    occasion: req.body.occasion, // Update this line
-    color: req.body.color, // Update this line
+    occasion: req.body.occasion, 
+    color: req.body.color, 
   });
 
   item
@@ -25,7 +38,6 @@ exports.addItem = (req, res) => {
       });
     });
 };
-
 
 // Find a single item with a given id
 exports.findOne = (req, res) => {
@@ -47,22 +59,27 @@ exports.findOne = (req, res) => {
 
 // Find items by subcategory
 exports.findBySubCategory = (req, res) => {
-  console.log('req.user._id:', req.user._id); // For debugging
-  console.log('req.query.subCategory:', req.query.subCategory); // For debugging
+  console.log('req.query.userId:', req.query.userId); 
+  console.log('req.query.subCategory:', req.query.subCategory); 
 
   const limit = parseInt(req.query.limit) || 6;
   const page = parseInt(req.query.page) || 1;
 
-  Item.find({ user: req.user._id, subCategory: req.query.subCategory }) // Add user filter here
-    .sort({ createdAt: -1 }) // Add this line to sort by createdAt in descending order
+  Item.find({
+    $and: [
+      { userId: req.query.userId },
+      { subCategory: req.query.subCategory }
+    ]
+  }) 
+    .sort({ createdAt: -1 }) 
     .skip((page - 1) * limit)
     .limit(limit)
     .then((items) => {
-      console.log('Retrieved items:', items); // For debugging
+      console.log('Retrieved items:', items);
       res.send(items);
     })
     .catch((err) => {
-      console.log('Error:', err); // For debugging
+      console.log('Error:', err); 
       res.status(500).send({
         message: err.message || 'An error occurred while retrieving items.',
       });
@@ -72,7 +89,7 @@ exports.findBySubCategory = (req, res) => {
 
 // Retrieve and return all items from the database.
 exports.findAll = (req, res) => {
-  Item.find({ user: req.user._id }) // Add user filter here
+  Item.find({ userId: req.body.userId }) 
     .then((items) => {
       res.send(items);
     })
@@ -109,8 +126,8 @@ exports.update = (req, res) => {
     subCategory: req.body.subCategory,
     season: req.body.season,
     images: req.body.images,
-    occasion: req.body.occasion, // Add this line
-    color: req.body.color, // Add this line
+    occasion: req.body.occasion, 
+    color: req.body.color, 
   }, { new: true })
     .then((item) => {
       if (!item) {
@@ -126,5 +143,3 @@ exports.update = (req, res) => {
       });
     });
 };
-
-

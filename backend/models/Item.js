@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 const ItemSchema = new mongoose.Schema({
-  user: {
+  userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
   },
   category: {
     type: String,
@@ -23,7 +23,7 @@ const ItemSchema = new mongoose.Schema({
     required: true,
   },
   occasion: {
-    type: [String], // Change this line
+    type: [String],
     required: true,
   },
   color: {
@@ -31,9 +31,7 @@ const ItemSchema = new mongoose.Schema({
     required: true,
   },
 }, {
-  timestamps: true, 
+  timestamps: true,
 });
 
-const Item = mongoose.model('Item', ItemSchema);
-
-module.exports = Item;
+module.exports = mongoose.model('Item', ItemSchema);

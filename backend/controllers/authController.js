@@ -134,27 +134,23 @@ const sendResetPasswordEmail = async (req, res, jwtSecret) => {
   }
   };
   
-  const verifyToken = async (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const verifyToken = (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
   
-  console.log('Received token:', token); // Add this line
-
-
-  if (!token) {
-  return res.status(401).send({ message: 'No token provided' });
-  }
-  
-  jwt.verify(token, JWT_SECRET, (err, decoded) => {
-  if (err) {
-  return res.status(401).send({ message: 'Unauthorized!' });
-  }
-  console.log('Decoded token:', decoded); // Add this line
-
-  req.userId = decoded.id;
-  next();
-  });
+    if (!token) {
+      return res.status(401).send({ message: 'No token provided' });
+    }
+    
+    jwt.verify(token, JWT_SECRET, (err, decoded) => {
+      if (err) {
+        return res.status(401).send({ message: 'Unauthorized!' });
+      }
+      req.userId = decoded.id;
+      next();
+    });
   };
+  
   const refreshToken = async (req, res, jwtSecret) => {
     const { token } = req.body;
   
@@ -177,6 +173,7 @@ const sendResetPasswordEmail = async (req, res, jwtSecret) => {
       res.status(500).json({ message: 'Server error' });
     }
   };
+
   exports.verifyToken = (req, res, next) => {
     const token = req.header('Authorization').replace('Bearer ', '');
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
@@ -195,4 +192,4 @@ const sendResetPasswordEmail = async (req, res, jwtSecret) => {
     sendResetPasswordEmail,
     verifyToken,
     refreshToken,
-};
+  };
